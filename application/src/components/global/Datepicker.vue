@@ -2,7 +2,9 @@
   <q-input :label="label"
            :disable="disabled"
            dense
-           v-model="computedValue">
+           v-model="computedValue"
+           :error-message="errorMessage"
+           :error="error">
     <template v-slot:prepend>
 
       <q-icon name="event" class="cursor-pointer">
@@ -45,7 +47,7 @@
 </template>
 
 <script>
-import { parse, format } from 'date-fns';
+import { format, parse } from 'date-fns';
 
 export default {
   name: 'Datepicker',
@@ -55,7 +57,9 @@ export default {
     label: { type: String, default: null },
     disabled: { type: Boolean, default: false },
     dateFormat: { type: String, default: 'DD/MM/YYYY HH:mm' },
-    parseFormat: { type: String, default: 'dd/MM/yyyy HH:mm' }
+    parseFormat: { type: String, default: 'dd/MM/yyyy HH:mm' },
+    errorMessage: { type: String, default: null },
+    error: { type: Boolean, default: false }
   },
 
   computed: {

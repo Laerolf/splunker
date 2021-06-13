@@ -6,7 +6,7 @@
 
       <q-btn
         flat round dense
-        icon="info" color="info"
+        icon="info" color="white"
         @click="toggleInstanceInfoModal" />
 
       <instance-info-modal

@@ -2,16 +2,20 @@
   <div class="row justify-between">
     <div class="col-6">
       <q-input
-        dense
+        dense type="number"
+        min="1"
         :label="label"
         :disable="disabled"
-        v-model="computedAmount" />
+        v-model="computedAmount"
+        :error-message="errorMessage"
+        :error="error" />
     </div>
     <div class="col-5">
       <q-select
         dense
         v-model="computedRelativeUnit"
-        :options="unitOptions"/>
+        :error="error"
+        :options="unitOptions" />
     </div>
   </div>
 </template>
@@ -24,12 +28,12 @@ export default {
     value: { type: String, default: null },
     label: { type: String, default: null },
     disabled: { type: Boolean, default: false },
-    dateFormat: { type: String, default: 'DD/MM/YYYY HH:mm' },
-    parseFormat: { type: String, default: 'dd/MM/yyyy HH:mm' }
+    errorMessage: { type: String, default: null },
+    error: { type: Boolean, default: false }
   },
 
   data: () => ({
-    amount: 0,
+    amount: 1,
     relativeUnit: {
       value: 'min',
       label: 'minutes ago'
@@ -73,7 +77,7 @@ export default {
   computed: {
     computedValue: {
       get () {
-        return this.value ? this.value.match(/\d*/g).find(value => value.length) : null;
+        return this.value ? this.value.match(/\d*/g).find(value => value.length) : 1;
       },
       set (newValue) {
         this.$emit('input', newValue);

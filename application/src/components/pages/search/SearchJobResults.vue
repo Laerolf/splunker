@@ -7,7 +7,7 @@
     </div>
 
     <div class="row">
-      <div class="col q-gutter-md">
+      <div class="col q-gutter-xl">
 
         <div v-if="searchJobResultsTotalCount"
              class="row items-center"
@@ -33,27 +33,58 @@
 
         </div>
 
-        <div class="row"
-             v-for="(result, resultIndex) in searchJobResult.results"
-             :key="`result-${resultIndex}`">
+        <template v-if="!loading">
+          <div class="row"
+               v-for="(result, resultIndex) in searchJobResult.results"
+               :key="`result-${resultIndex}`">
 
-          <div class="col">
-            <q-card>
-              <q-card-section>
-                {{ result._raw }}
-              </q-card-section>
+            <div class="col">
+              <q-card>
+                <q-card-section>
+                  <span class="text-h5">{{ result._time | dateify }}</span>
+                </q-card-section>
 
-              <q-card-section>
-                {{ result.host }} {{ result.index }} {{ result.sourcetype }}
-              </q-card-section>
-            </q-card>
+                <q-card-section>
+                  {{ result._raw }}
+                </q-card-section>
+
+                <q-card-section>
+                  <div class="row">
+                    <div class="col">
+                      <span class="text-bold">Source type:</span> {{ result.sourcetype }}
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <span class="text-bold">Source:</span> {{ result.source }}
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <span class="text-bold">Host:</span> {{ result.host }}
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <span class="text-bold">Index:</span> {{ result.index }}
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+
           </div>
+        </template>
 
-        </div>
-
-        <div class="row" v-if="loading">
-          <div class="col">
-            <q-inner-loading />
+        <div class="row" v-else>
+          <div class="col text-center">
+            <q-spinner
+              color="secondary"
+              size="3em"
+              :thickness="10"/>
           </div>
         </div>
 

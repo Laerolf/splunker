@@ -53,7 +53,9 @@ def createSearchJob():
     searchString = request.form.get("search")
 
     searchQuery = {
-        "adhoc_search_level": "smart"
+        "adhoc_search_level": "smart",
+        "sort_key": "_time",
+        "sort_dir": "desc"
     }
 
     for key in request.form.keys():

@@ -15,7 +15,7 @@
         <div class="row justify-center">
           <div class="col-10">
             <search-job-results
-              v-if="searched && !searching"
+              v-if="searched"
               :loading="searching"
               @search="search" />
           </div>
