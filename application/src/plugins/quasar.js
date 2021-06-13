@@ -1,8 +1,8 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
-import { Quasar } from 'quasar'
+import { Quasar } from 'quasar';
 
 Vue.use(Quasar, {
   config: {},
   plugins: {}
-})
+});

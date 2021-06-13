@@ -5,10 +5,14 @@ from flask import (
     request,
     jsonify
 )
+from flask_cors import (
+    CORS
+)
 import requests
 from xml.dom import (
     minidom
 )
+import json
 
 SPLUNK_API_ACCESS_TOKEN = os.environ.get("SPLUNK_API_ACCESS_TOKEN")
 SPLUNK_API_URL = os.environ.get("SPLUNK_API_URL")
@@ -26,6 +30,7 @@ if SPLUNK_API_URL is None:
         raise Exception("A url to a Splunk instance is required.\n")
 
 app = Flask(__name__, template_folder="templates")
+cors = CORS(app)
 app.config["DEBUG"] = os.environ.get("DEBUG_MODE") or False
 
 headers = {"Authorization": f"Bearer {SPLUNK_API_ACCESS_TOKEN}"}
@@ -45,34 +50,66 @@ def getServerInstanceInfo():
 
 @app.route('/api/search', methods=['POST'])
 def createSearchJob():
-    searchString = request.form.get("searchString")
+    searchString = request.form.get("search")
 
-    if searchString and len(searchString):
-        searchQuery = { "search": "search " + searchString }
+    searchQuery = {
+        "adhoc_search_level": "smart"
+    }
+
+    for key in request.form.keys():
+        formValue = request.form.get(key)
+        if formValue and key != "search":
+            searchQuery[key] = formValue
+        elif formValue and key == "search":
+            searchQuery["search"] = f"search {searchString}"
+
+    if searchQuery["search"]:
         response = requests.post(f"{SPLUNK_API_URL}/services/search/jobs", headers=headers, data=searchQuery, verify=False)
-        sid = minidom.parseString(response.content).getElementsByTagName('sid')[0].childNodes[0].nodeValue
-        return jsonify({ "sid": sid })
+        sidKey = minidom.parseString(response.content).getElementsByTagName('sid')
+        print(sidKey, searchQuery)
+        print(response.content)
+        if len(sidKey):
+            return jsonify({ "sid": sidKey[0].childNodes[0].nodeValue })
 
     return jsonify({"sid": None})
 
-@app.route('/api/search', methods=['GET'])
-def getSearchJobStatus():
+@app.route('/api/search/details', methods=['GET', 'POST'])
+def getSearchJobDetails():
     sid = request.form.get("sid")
 
     if sid and len(sid):
         response = requests.get(f"{SPLUNK_API_URL}/services/search/jobs/{sid}/?output_mode=json", headers=headers, verify=False)
-        searchJobStatus = response.json()["entry"][0]["content"]["dispatchState"]
+        searchJobDetails = response.json()["entry"][0]["content"]
 
-        return jsonify({"status": searchJobStatus})
+        return jsonify({"details": searchJobDetails})
 
-    return jsonify({"status": None})
+    return jsonify({})
 
-@app.route('/api/search/results', methods=['GET'])
+@app.route('/api/search/results', methods=['GET', 'POST'])
 def getSearchJobResults():
     sid = request.form.get("sid")
+    count = int(request.form.get("count") or 0)
+    page = int(request.form.get("page") or 0)
+
+    options = {
+        "count": count,
+        "offset": 0
+    }
+
+    if page > 1:
+        options.update({"offset": (count * (page - 1))})
+
+    optionArray = []
+
+    for key in options.keys():
+        optionArray.append(f"{key}={options.get(key)}")
+
+    optionString = "&&".join(optionArray)
+
+    print(optionString)
 
     if sid and len(sid):
-        response = requests.get(f"{SPLUNK_API_URL}/services/search/jobs/{sid}/results?output_mode=json&count=0", headers=headers, verify=False)
+        response = requests.get(f"{SPLUNK_API_URL}/services/search/jobs/{sid}/results?output_mode=json&&{optionString}", headers=headers, data=options, verify=False)
         return jsonify(response.json())
 
     return jsonify({"results": []})
