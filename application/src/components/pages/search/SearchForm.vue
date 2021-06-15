@@ -167,7 +167,8 @@ export default {
         } else {
           this.$emit('search', {
             search: this.searchString,
-            earliest_time: this.relativeTimeWindow
+            earliest_time: this.relativeTimeWindow,
+            latest_time: 'now'
           });
         }
       }

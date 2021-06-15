@@ -68,8 +68,6 @@ def createSearchJob():
     if searchQuery["search"]:
         response = requests.post(f"{SPLUNK_API_URL}/services/search/jobs", headers=headers, data=searchQuery, verify=False)
         sidKey = minidom.parseString(response.content).getElementsByTagName('sid')
-        print(sidKey, searchQuery)
-        print(response.content)
         if len(sidKey):
             return jsonify({ "sid": sidKey[0].childNodes[0].nodeValue })
 
@@ -107,8 +105,6 @@ def getSearchJobResults():
         optionArray.append(f"{key}={options.get(key)}")
 
     optionString = "&&".join(optionArray)
-
-    print(optionString)
 
     if sid and len(sid):
         response = requests.get(f"{SPLUNK_API_URL}/services/search/jobs/{sid}/results?output_mode=json&&{optionString}", headers=headers, data=options, verify=False)
