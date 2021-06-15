@@ -58,7 +58,6 @@ const actions = {
       if (data) {
         commit('setCurrentSid', data.sid);
         commit('setSearchJobDetails', {});
-        commit('setSearchJobResult', {});
 
         return data.sid;
       }
